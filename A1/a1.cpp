@@ -1,0 +1,203 @@
+// a1.cpp : Defines the entry point for the console application.
+//
+
+#include <iostream>
+#include <fstream>
+#include <math.h>
+#include <vector>
+#include <string>
+
+int main(int argc, char *argv[]){
+    if (argc != 2)
+        std::cout<<"error";
+    else{
+        std::ifstream file (argv[1]);
+         if (!file.is_open() )
+            std::cout<<"error";
+        else{
+            std::string first_line = "";
+            std::string count_line = "";
+            getline(file, first_line);
+            int line_total = 0;
+            int k = -1;
+            int m = -1;
+            int exponent = 0;
+            if (first_line.at(0) == '1' && first_line.at(1) == '0' && first_line.at(2) == ' ') {
+                k = 10;
+                m = first_line.at(first_line.length() - 1) - 48;
+                if (first_line.length() > 4) {
+                        m = 0;
+                    for (int i = first_line.length() - 1; 3 <= i; i--){
+                        if (first_line.at(i) - 48 > 9) {
+                            std::cout << "error";
+                            return 0;
+                        }
+                        int p = (int)pow(10, exponent);
+                        if (p != 1 && p % 2 != 0) {
+                            p = p + 1;
+                        }
+                        int n = (first_line.at(i) - 48) * p;
+                        exponent = exponent + 1;
+                        m = n + m;
+                    }
+                }
+
+            }
+            else if (first_line.at(1) == ' ' && '3' <= first_line.at(0) && '9' >= first_line.at(0) ){
+                    k = first_line.at(0) - 48;
+                    m = first_line.at(first_line.length() - 1) - 48;
+                if (first_line.length() > 3) {
+                        m = 0;
+                    for (int i = first_line.length() - 1; 2 <= i; i--){
+                        if (first_line.at(i) - 48 > 9) {
+                            std::cout << "error";
+                            return 0;
+                        }
+                        int p = (int)pow(10, exponent);
+                        if (p != 1 && p % 2 != 0) {
+                            p = p + 1;
+                        }
+                        int n = (first_line.at(i) - 48) * p;
+                        exponent = exponent + 1;
+                        m = n + m;
+                    }
+                }
+            }
+            if (3 <= k && k <= 10 && m > 1) {
+                //std::cout << "input \n" << first_line << "\n" << "output \n" << k << " " << m << "\n";
+                //std::cout << "line total = " << line_total << "\n";
+                std::string current_line = "";
+                int kpower = (int)pow(4,k);
+                std::vector<int> ikmer(kpower);
+                std::vector<std::string> skmer(kpower);
+                //std::cout << "starting size " << kmer.size() << "\n" << "last object = " << kmer[kpower - 1] << "\n";
+                //iterate through lines in file
+                while (getline(file, current_line)) {
+                    line_total = line_total + 1; //counts the number of lines in the file
+					std::string kmer = ""; //holds the kmer string
+					int current = 0; //holds the kmer's decimal value
+					int i = 0; //index value of current char
+					//build the first string of length k in the current line of file
+					for (i; i < k; i++) {
+						kmer += current_line.at(i);
+						int p = (int)pow(4, k - i - 1);
+							if (current_line.at(i) == 'A')
+								current = current + (0 * p);
+							if (current_line.at(i) == 'C')
+								current = current + (1 * p);
+							if (current_line.at(i) == 'G')
+								current = current + (2 * p);
+							if (current_line.at(i) == 'T')
+								current = current + (3 * p);
+					}
+					//ensures the kmer is of proper length
+					if (kmer.length() == k) {
+						//Add first kmer to index in the vectors used to store the total count of occurances and the string
+						ikmer[current] = ikmer[current] + 1;
+						skmer[current] = kmer;
+						//Iterates to the next char in the current line
+						for (i; i < (int)current_line.length(); i++) {
+							kmer.erase(kmer.begin()); //erases the highest power kmer from kmer string
+							kmer += current_line.at(i); // adds the new char to the end of the string
+							int p = (int)pow(4, (k - 1));
+							//subtracts the previous highest power's value from current index value
+							while (current >= p) {
+								current = current - p;
+							}
+							current = current * 4; //multiply the index value by 4 to shift all current letters to the left
+							//Add the newest ACTG value to the modified index value
+							if (current_line.at(i) == 'A')
+								current += 0;
+							if (current_line.at(i) == 'C')
+								current += 1;
+							if (current_line.at(i) == 'G')
+								current += 2;
+							if (current_line.at(i) == 'T')
+								current += 3;
+							//Places new value and new kmer in vectors
+							ikmer[current] = ikmer[current] + 1;
+							skmer[current] = kmer;
+						}
+					}
+					/**
+                    //iterate through characters in line
+                    for (int i = 0; i < current_line.length(); i++) {
+                        std::string actg = "";
+                        //create string of K length for starting with each character at index i
+                        for (int n = 0; n < k; n++) {
+                                if (i + n < current_line.length())
+                                    actg += current_line.at(i + n);
+                        }
+                        //verify that string actg is of k length
+                        if (actg.length() == k) {
+                            int exp = 0;
+                            int current = 0;
+                            //iterate through string actg and assign a decimal value to it
+                            for (int z = actg.length() - 1; 0 <= z; z--) {
+                                int p = pow(4, exp);
+                                int x = 0;
+                                if (actg.at(z) == 'A') {
+                                    x = (0 * p);
+                                }
+                                if (actg.at(z) == 'C') {
+                                    x = (1 * p);
+                                }
+                                if (actg.at(z) == 'G') {
+                                    x = (2 * p);
+                                }
+                                if (actg.at(z) == 'T') {
+                                    x = (3 * p);
+                                }
+                                current = current + x;
+                                exp = exp + 1;
+                            }
+                            //increment index value in vector kmer to that of decimal value of current actg
+                            ikmer[current] = ikmer[current] + 1;
+                            skmer[current] = actg;
+                        }
+                    } **/
+                }
+                //iterate through the indexes in vector kmer
+                if (line_total == m) {
+                    for (int i = 0; i < (int)ikmer.size(); i++) {
+                        if (ikmer[i] != 0) {
+                    /**        int dec = i;
+                            std::string combo = "";
+                            int power = 0;
+                            //Output the kmers
+                            for (int times = 0; times < k; times++) {
+                                int r = (dec % 4);
+                                if (r == 0) {
+                                    combo = 'A' + combo;
+                                }
+                                if (r == 1) {
+                                    combo = 'C' + combo;
+                                }
+                                if (r == 2) {
+                                    combo = 'G' + combo;
+                                }
+                                if (r == 3) {
+                                    combo = 'T' + combo;
+                                }
+                                dec = dec / 4;
+                                power = power + 1;
+                            } **/
+                            std::cout << skmer[i] << " " << ikmer[i] << "\n";
+                        }
+                    }
+                }
+                else {
+                    std::cout << "error";
+                    return 0;
+                }
+
+            }
+            else {
+                std::cout << "error";
+                return 0;
+            }
+        }
+
+    }
+    return 0;
+}

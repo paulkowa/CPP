@@ -1,0 +1,126 @@
+// a8.cpp : Defines the entry point for the console application.
+//
+
+
+#include <map>
+#include <vector>
+#include <queue>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <functional>
+#include <memory>
+
+
+class order {
+public:
+	bool operator()(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+		return ((a.second < b.second) || (!(b.second < a.second) && (b.first < a.first)));
+	}
+};
+
+
+void genDeletions(const std::string& input, std::vector<std::string>& words) {
+
+	for (unsigned int i = 0; i < input.length(); i++) {
+		std::string current = input;
+		current.erase(current.begin() + i);
+		words.push_back(current);
+	}//for i
+}//genDeletions
+
+void genInsertions(const std::string& input, std::vector<std::string>& words) {
+
+	for (unsigned int i = 0; i <= input.length(); i++) {
+		for (int p = 0; p < 26; p++) {
+			std::string current = input;
+			char c = p + 65;
+			current.insert(current.begin() + i, c);
+			words.push_back(current);
+		}//for i
+	}//for p
+}//genInsertions
+
+void genSubs(const std::string& input, std::vector<std::string>& words) {
+
+	for (unsigned int i = 0; i < input.length(); i++) {
+		for (int p = 0; p < 26; p++) {
+			std::string current = input;
+			char c = p + 65;
+			current.replace(current.begin() + i, current.begin() + i + 1, 1, c);
+			words.push_back(current);
+		}//for i
+	}//for p
+}//genSubs
+
+void buildTree(std::multimap <std::string, int, std::less<std::string> >& tree, std::ifstream& stream) {
+
+	while (!stream.eof()) {
+		std::string word = "";
+		int freq = 0;
+		stream >> word;
+		stream >> freq;
+		tree.insert(std::pair<std::string, int>(word, freq));
+	} //while
+}//buildTree
+
+std::pair<std::string, int> getSuggestion(std::multimap<std::string, int>& tree, std::vector<std::string>& alts, const std::string& input) {
+
+	std::priority_queue<std::pair<std::string, int>, std::vector<std::pair<std::string, int> >, order> suggs;
+
+	for (std::vector<std::string>::iterator iter = alts.begin(); iter < alts.end(); iter++) {
+		std::multimap<std::string, int>::iterator it = tree.find(*iter);
+		if (!(it == tree.end())) {
+			suggs.push(*it);
+		}//if
+	}//for iter
+	if (!suggs.empty()) { return suggs.top(); }
+	else { return std::pair<std::string, int>(input, 0); }
+}//getSuggestion
+
+std::vector<std::string> createAlts(const std::string& input) {
+
+	std::vector<std::string> alts;
+	genDeletions(input, alts);
+	genInsertions(input, alts);
+	genSubs(input, alts);
+
+	return alts;
+} //createAlts
+
+int main(int argc, char* argv[]) {
+
+	std::vector<std::string> inputs;
+	std::vector<std::string> alts;
+	std::multimap <std::string, int> tree;
+
+	//Read the input words from stream
+	std::string s;
+	while (std::cin >> s) inputs.push_back(s);
+
+	//Build the map using the dictionary file
+	std::ifstream stream(argv[1]);
+	buildTree(tree, stream);
+
+	for (unsigned int i = 0; i < inputs.size(); i++)	{
+		std::multimap<std::string, int>::iterator iter = tree.find(inputs[i]);
+		if (!(iter == tree.end())) {
+			std::cout << iter->first << " " << iter->second << std::endl;
+			iter->second += 1;
+		}//if
+
+		else {
+			std::pair<std::string, int> suggestion = getSuggestion(tree, alts = createAlts(inputs[i]), inputs[i]);
+			if (suggestion.second != 0) { std::cout << suggestion.first << " " << suggestion.second << std::endl; }
+			else { 
+				if (tree.find(suggestion.first) == tree.end()) { 
+					suggestion.second = 1;
+					tree.insert(suggestion); 
+					std::cout << "-" << std::endl;
+				} //if
+			}//else
+		}//else
+	}//for
+	return 0;
+}//main
+
