@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <math.h>
 #include <vector>
 #include <string>
 
@@ -17,8 +16,10 @@ void fill_array(std::vector<int> &input, int seed = 56) {
 bool is_sorted(std::vector<int> &input) {
     bool sorted = true;
     for(int i = 0; i + 1 < input.size(); i++) {
-        if(input[i] > input[i + 1])
+        if(input[i] > input[i + 1]) {
             sorted = false;
+            break;
+        }
     }
 
     return sorted;
