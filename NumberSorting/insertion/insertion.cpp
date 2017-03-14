@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <iterator>
 #include <vector>
-#include <string>
 
 void fill_array(std::vector<int> &input, int seed = 56) {
     srand(seed);
