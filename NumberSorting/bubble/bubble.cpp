@@ -1,5 +1,6 @@
-// Bubble sort and Bi-Directional Bubble sort
-//
+// Bubble sort and Bi-Directional Bubble sort / cocktail sort
+// Created: 3/14
+// Author: Paul Kowalski <paulkowa@buffalo.edu>
 
 #include <iostream>
 #include <stdlib.h>

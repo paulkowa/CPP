@@ -1,5 +1,6 @@
 // Insertion sort
-//
+// Created: 3/14
+// Author: Paul Kowalski <paulkowa@buffalo.edu>
 
 #include <iostream>
 #include <stdlib.h>

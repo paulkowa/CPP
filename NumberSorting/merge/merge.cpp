@@ -1,10 +1,12 @@
 // Merge sort
-//
+// Created: 3/14
+// Author: Paul Kowalski <paulkowa@buffalo.edu>
 
 #include <iostream>
 #include <stdlib.h>
 #include <iterator>
 #include <vector>
+
 
 void fill_array(std::vector<int> &input, int seed = 56) {
     srand(seed);
